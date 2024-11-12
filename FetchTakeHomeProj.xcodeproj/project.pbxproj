@@ -14,6 +14,9 @@
 		CE67E7842CE3EA9A00E20555 /* FetchTakeHomeProjTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE67E7832CE3EA9A00E20555 /* FetchTakeHomeProjTests.swift */; };
 		CE67E78E2CE3EA9A00E20555 /* FetchTakeHomeProjUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE67E78D2CE3EA9A00E20555 /* FetchTakeHomeProjUITests.swift */; };
 		CE67E7902CE3EA9A00E20555 /* FetchTakeHomeProjUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE67E78F2CE3EA9A00E20555 /* FetchTakeHomeProjUITestsLaunchTests.swift */; };
+		CE67E7A02CE3EB1F00E20555 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE67E79F2CE3EB1F00E20555 /* APIService.swift */; };
+		CE67E7A22CE3EC3900E20555 /* Recipes.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE67E7A12CE3EC3900E20555 /* Recipes.swift */; };
+		CE67E7A42CE3ED3D00E20555 /* RecipeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE67E7A32CE3ED3D00E20555 /* RecipeViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +47,9 @@
 		CE67E7892CE3EA9A00E20555 /* FetchTakeHomeProjUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FetchTakeHomeProjUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE67E78D2CE3EA9A00E20555 /* FetchTakeHomeProjUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchTakeHomeProjUITests.swift; sourceTree = "<group>"; };
 		CE67E78F2CE3EA9A00E20555 /* FetchTakeHomeProjUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchTakeHomeProjUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		CE67E79F2CE3EB1F00E20555 /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
+		CE67E7A12CE3EC3900E20555 /* Recipes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recipes.swift; sourceTree = "<group>"; };
+		CE67E7A32CE3ED3D00E20555 /* RecipeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,8 +100,10 @@
 		CE67E7712CE3EA9700E20555 /* FetchTakeHomeProj */ = {
 			isa = PBXGroup;
 			children = (
+				CE67E79E2CE3EADB00E20555 /* ViewModel */,
+				CE67E79D2CE3EAD800E20555 /* Model */,
+				CE67E79C2CE3EAD300E20555 /* View */,
 				CE67E7722CE3EA9700E20555 /* FetchTakeHomeProjApp.swift */,
-				CE67E7742CE3EA9700E20555 /* ContentView.swift */,
 				CE67E7762CE3EA9900E20555 /* Assets.xcassets */,
 				CE67E7782CE3EA9900E20555 /* Preview Content */,
 			);
@@ -125,6 +133,31 @@
 				CE67E78F2CE3EA9A00E20555 /* FetchTakeHomeProjUITestsLaunchTests.swift */,
 			);
 			path = FetchTakeHomeProjUITests;
+			sourceTree = "<group>";
+		};
+		CE67E79C2CE3EAD300E20555 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				CE67E7742CE3EA9700E20555 /* ContentView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		CE67E79D2CE3EAD800E20555 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				CE67E7A12CE3EC3900E20555 /* Recipes.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		CE67E79E2CE3EADB00E20555 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				CE67E79F2CE3EB1F00E20555 /* APIService.swift */,
+				CE67E7A32CE3ED3D00E20555 /* RecipeViewModel.swift */,
+			);
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -259,6 +292,9 @@
 			files = (
 				CE67E7752CE3EA9700E20555 /* ContentView.swift in Sources */,
 				CE67E7732CE3EA9700E20555 /* FetchTakeHomeProjApp.swift in Sources */,
+				CE67E7A02CE3EB1F00E20555 /* APIService.swift in Sources */,
+				CE67E7A42CE3ED3D00E20555 /* RecipeViewModel.swift in Sources */,
+				CE67E7A22CE3EC3900E20555 /* Recipes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
