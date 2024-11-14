@@ -8,57 +8,134 @@
 import SwiftUI
 
 struct ContentView: View {
-  @StateObject private var viewModel = RecipeViewModel()
-  let columns = [GridItem(.flexible()), GridItem(.flexible())]
+  @EnvironmentObject private var viewModel: RecipeViewModel
+  @State private var searchText = ""
+
+
+  var filteredCategories: [String] {
+    searchText.isEmpty ? viewModel.groupedRecipes.keys.sorted() :
+    viewModel.groupedRecipes.keys.filter { category in
+
+      viewModel.groupedRecipes[category]?.contains { recipe in
+        recipe.name.localizedCaseInsensitiveContains(searchText)
+      } ?? false
+    }
+  }
 
   var body: some View {
-    ScrollView {
-      VStack(alignment: .leading) {
+    NavigationStack {
+      Group {
         if viewModel.isFetching {
-          ProgressView("Loading Recipes...")
-        } else if let errorMessage = viewModel.errorMessage {
-          Text(errorMessage)
-            .foregroundColor(.red)
+          ProgressView()
         } else {
-          ForEach(viewModel.groupedRecipes.keys.sorted(), id: \.self) { cuisine in
-            Section(header: Text(cuisine).font(.title).padding(.top)) {
-              LazyVGrid(columns: columns, spacing: 16) {
-                ForEach(viewModel.groupedRecipes[cuisine] ?? [], id: \.uuid) { recipe in
-                  VStack(alignment: .leading) {
-                    Text(recipe.name)
-                      .font(.headline)
-                      .padding(.bottom, 4)
-                    if let photoURL = recipe.photo_url_small,
-                       let url = URL(string: photoURL) {
-                      AsyncImage(url: url) { image in
-                        image
-                          .resizable()
-                          .scaledToFit()
-                          .frame(height: 120)
-                          .cornerRadius(8)
-
-                      } placeholder: {
-                        ProgressView()
-                      }
-                    }
-                  }
-                  .padding()
-                  .background(RoundedRectangle(cornerRadius: 8).fill(Color(.systemBackground)))
-                  .shadow(radius: 2)
-                }
+          List(filteredCategories, id: \.self) { category in
+            Section(header: Text(category)) {
+              ForEach(viewModel.groupedRecipes[category] ?? []) { recipe in
+                RecipeRow(recipe: recipe)
               }
-              .padding(.bottom, 16)
             }
           }
         }
       }
-      .padding()
-      .onAppear {
-        viewModel.fetchRecipes()
-      }
+      .searchable(text: $searchText)
+      .navigationTitle("Dessert Recipes")
+      .task { await viewModel.fetchRecipes() }
     }
   }
 }
+
+struct RecipeRow: View {
+  let recipe: Recipe
+  @State private var isExpanded = false
+  @State private var recipeDetails: RecipeDetails?
+  @State private var isLoadingDetails = false
+  @EnvironmentObject var viewModel: RecipeViewModel
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      HStack {
+        AsyncImage(url: URL(string: recipe.photo_url_small ?? "")) { image in
+          image.resizable()
+            .aspectRatio(contentMode: .fill)
+            .frame(width: 60, height: 60)
+            .cornerRadius(8)
+        } placeholder: {
+          Color.gray.opacity(0.3)
+            .frame(width: 60, height: 60)
+        }
+
+        VStack(alignment: .leading) {
+          Text(recipe.name)
+            .font(.headline)
+          Text(recipe.cuisine)
+            .font(.subheadline)
+            .foregroundColor(.secondary)
+        }
+
+        Spacer()
+
+        Button(action: { isExpanded.toggle()
+
+          if isExpanded && recipeDetails == nil {
+            loadRecipeDetails()
+          }
+        }) {
+          Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+        }
+      }
+
+      if isExpanded {
+        if isLoadingDetails {
+          ProgressView()
+        } else if let details = recipeDetails {
+          VStack(alignment: .leading, spacing: 16) {
+
+            if let youtubeUrl = recipe.youtube_url {
+              Link("", destination: URL(string: youtubeUrl)!)
+              Label("Watch Video Tutorial", systemImage: "play.circle.fill")
+                .foregroundColor(.red)
+            }
+          }
+
+          //ingredient list
+          VStackLayout(alignment: .leading, spacing: 8) {
+            Text("Ingredients")
+              .font(.headline)
+            ForEach(details.ingredients, id: \.self) { ingredient in
+              Text("- \(ingredient)")
+                .font(.subheadline)
+            }
+          }
+          VStackLayout(alignment: .leading, spacing: 8) {
+            Text("Instructions:")
+              .font(.headline)
+            Text(details.instructions)
+              .font(.subheadline)
+          }
+          .padding(.vertical)
+        }
+
+      }
+    }
+    .padding()
+    .background(Color(.systemBackground))
+    .cornerRadius(12)
+    .shadow(radius: 2)
+
+  }
+  private func loadRecipeDetails() {
+    isLoadingDetails = true
+    Task {
+      do {
+        recipeDetails = try await viewModel.fetchRecipeDetails(for: recipe)
+      } catch {
+        print("Error loading recipe details: \(error)")
+      }
+      isLoadingDetails = false
+    }
+  }
+}
+
 #Preview {
-    ContentView()
+  ContentView()
 }

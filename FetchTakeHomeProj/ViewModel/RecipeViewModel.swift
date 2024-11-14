@@ -9,33 +9,40 @@ import Foundation
 
 @MainActor
 class RecipeViewModel: ObservableObject {
-  @Published var groupedRecipes: [String: [Recipes]] = [:]
-  @Published var isFetching = false
-  @Published var errorMessage: String? = nil
+  @Published private (set) var groupedRecipes: [String: [Recipe]] = [:]
+  @Published private(set) var isFetching = false
+  @Published var errorMessage: String?
+  private var recipeDetailsCache: [String: RecipeDetails] = [:]
+
 
   func fetchRecipes() {
-    print("fetchrecipes called")
-    self.isFetching = true
-    self.errorMessage = nil
-
     Task {
+      isFetching = true
       do {
-        print("fetching recipes from APIService")
-        let fetchedRecipes = try await APIService.shared.getInfo()
-        print("Fetched recipes count: \(fetchedRecipes.count)")
+        let recipes = try await APIService.shared.getInfo()
+        groupedRecipes = Dictionary(grouping: recipes) { $0.dessertType }
 
-        self.groupedRecipes = Dictionary(grouping: fetchedRecipes) { $0.cuisine }
-        self.isFetching = false
-
-       
-        
       } catch {
-        print("Error: \(error.localizedDescription)")
-
-          self.errorMessage = "Sorry we couldnt fetch your recipe"
-          self.isFetching = false
-
+        errorMessage = error.localizedDescription
       }
+      isFetching = false
     }
   }
+
+  func fetchRecipeDetails(for recipe: Recipe) async throws -> RecipeDetails {
+
+    if let cached = recipeDetailsCache[recipe.uuid] {
+      return cached
+    }
+
+    guard let sourceUrl = recipe.source_url else {
+      throw URLError(.badURL)
+    }
+
+    let details = try await APIService.shared.fetchRecipeDetails(from: sourceUrl)
+    recipeDetailsCache[recipe.uuid] = details
+    return details 
+  }
 }
+
+
