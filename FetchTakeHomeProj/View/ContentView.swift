@@ -53,36 +53,45 @@ struct RecipeRow: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
-      HStack {
-        AsyncImage(url: URL(string: recipe.photo_url_small ?? "")) { image in
-          image.resizable()
-            .aspectRatio(contentMode: .fill)
-            .frame(width: 60, height: 60)
-            .cornerRadius(8)
-        } placeholder: {
-          Color.gray.opacity(0.3)
-            .frame(width: 60, height: 60)
-        }
 
-        VStack(alignment: .leading) {
-          Text(recipe.name)
-            .font(.headline)
-          Text(recipe.cuisine)
-            .font(.subheadline)
-            .foregroundColor(.secondary)
-        }
-
-        Spacer()
-
-        Button(action: { isExpanded.toggle()
-
+      //toggle button
+      Button(action: {
+        withAnimation {
+          isExpanded.toggle()
           if isExpanded && recipeDetails == nil {
             loadRecipeDetails()
           }
-        }) {
+        }
+      }) {
+
+        HStack {
+          AsyncImage(url: URL(string: recipe.photo_url_small ?? "")) { image in
+            image.resizable()
+              .aspectRatio(contentMode: .fill)
+              .frame(width: 60, height: 60)
+              .cornerRadius(8)
+          } placeholder: {
+            Color.gray.opacity(0.3)
+              .frame(width: 60, height: 60)
+          }
+
+          VStack(alignment: .leading) {
+            Text(recipe.name)
+              .font(.headline)
+            Text(recipe.cuisine)
+              .font(.subheadline)
+              .foregroundColor(.secondary)
+          }
+
+          Spacer()
+
           Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
         }
       }
+      .buttonStyle(PlainButtonStyle())
+
+
+
 
       if isExpanded {
         if isLoadingDetails {
@@ -91,50 +100,55 @@ struct RecipeRow: View {
           VStack(alignment: .leading, spacing: 16) {
 
             if let youtubeUrl = recipe.youtube_url {
-              Link("", destination: URL(string: youtubeUrl)!)
-              Label("Watch Video Tutorial", systemImage: "play.circle.fill")
-                .foregroundColor(.red)
+              Link(destination: URL(string: youtubeUrl)!) {
+                HStack {
+                  Text("Watch Video Tutorial")
+                  Image(systemName: "play.circle.fill")
+                }
+                .foregroundColor(.white)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(Color(.red))
+                .cornerRadius(8)
+              }
             }
-          }
 
-          //ingredient list
-          VStackLayout(alignment: .leading, spacing: 8) {
-            Text("Ingredients")
-              .font(.headline)
-            ForEach(details.ingredients, id: \.self) { ingredient in
-              Text("- \(ingredient)")
+            //ingredient list
+            VStack(alignment: .leading, spacing: 8) {
+              Text("Ingredients")
+                .font(.headline)
+              ForEach(details.ingredients, id: \.self) { ingredient in
+                Text("- \(ingredient)")
+                  .font(.subheadline)
+              }
+            }
+            VStackLayout(alignment: .leading, spacing: 8) {
+              Text("Instructions:")
+                .font(.headline)
+              Text(details.instructions)
                 .font(.subheadline)
             }
+            .padding(.vertical)
           }
-          VStackLayout(alignment: .leading, spacing: 8) {
-            Text("Instructions:")
-              .font(.headline)
-            Text(details.instructions)
-              .font(.subheadline)
-          }
-          .padding(.vertical)
+
         }
-
       }
-    }
-    .padding()
-    .background(Color(.systemBackground))
-    .cornerRadius(12)
-    .shadow(radius: 2)
 
-  }
-  private func loadRecipeDetails() {
-    isLoadingDetails = true
-    Task {
-      do {
-        recipeDetails = try await viewModel.fetchRecipeDetails(for: recipe)
-      } catch {
-        print("Error loading recipe details: \(error)")
-      }
-      isLoadingDetails = false
+
     }
   }
-}
+    private func loadRecipeDetails() {
+      isLoadingDetails = true
+      Task {
+        do {
+          recipeDetails = try await viewModel.fetchRecipeDetails(for: recipe)
+        } catch {
+          print("Error loading recipe details: \(error)")
+        }
+        isLoadingDetails = false
+      }
+    }
+  }
 
 #Preview {
   ContentView()
