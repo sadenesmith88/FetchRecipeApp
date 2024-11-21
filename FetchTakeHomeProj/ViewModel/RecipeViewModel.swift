@@ -10,11 +10,25 @@ import Foundation
 @MainActor
 class RecipeViewModel: ObservableObject {
   @Published private (set) var groupedRecipes: [String: [Recipe]] = [:]
+  @Published var savedRecipes: [Recipe] = []
   @Published private(set) var isFetching = false
   @Published var errorMessage: String?
   private var recipeDetailsCache: [String: RecipeDetails] = [:]
 
+//toggle saved state
+  func toggleSaved(recipe: Recipe) {
+    if savedRecipes.contains(where: { $0.id == recipe.id }) {
+      savedRecipes.removeAll { $0.id == recipe.id }
+    } else {
+      savedRecipes.append(recipe)
+    }
+  }
 
+  //check if recipe is saved
+  func isSaved(recipe: Recipe) -> Bool {
+    savedRecipes.contains { $0.id == recipe.id }
+  }
+  
   func fetchRecipes() {
     Task {
       isFetching = true
